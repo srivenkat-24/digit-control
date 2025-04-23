@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Expense History - Digit Control</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-black text-white min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="w-full bg-black px-6 py-4 flex items-center justify-between shadow-sm">
+    <a href="index.html" aria-label="Home">
+      <i data-lucide="home" class="text-white hover:text-green-400 w-6 h-6 transition"></i>
+    </a>
+    <a href="index.html" aria-label="Home">
+      <div class="text-green-400 text-xl font-bold">Digit Control</div>
+    </a>
+    <!-- <div class="text-green-400 text-xl font-bold">💰 Spend Wise</div> -->
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-grow flex flex-col items-center justify-start px-4 py-8 pt-10">
+    <div class="max-w-2xl w-full space-y-6">
+      <h2 class="text-3xl font-bold text-green-400 text-center">Expense History 📅</h2>
+
+      <!-- Date Picker -->
+      <div>
+        <label for="dateSelect" class="block mb-2 text-lg">Choose a date:</label>
+        <input type="date" id="dateSelect" class="w-full p-3 rounded-lg bg-gray-800 text-white">
+      </div>
+
+      <!-- Expense History (Scrollable Section) -->
+      <div id="historyContainer" class="space-y-4 max-h-96 overflow-y-auto"></div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="w-full bg-black p-4 flex justify-around border-t border-gray-800">
+    <a href="check-expense.html" aria-label="Check Data">
+      <i data-lucide="search" class="text-white hover:text-green-400 w-6 h-6 transition"></i>
+    </a>
+    <a href="analysis.html" aria-label="Analysis">
+      <i data-lucide="bar-chart-3" class="text-white hover:text-green-400 w-6 h-6 transition"></i>
+    </a>
+    <a href="debt.html" aria-label="Debt">
+      <i data-lucide="credit-card" class="text-white hover:text-green-400 w-6 h-6 transition"></i>
+    </a>
+    <a href="suggestions.html" aria-label="Suggestions">
+      <i data-lucide="lightbulb" class="text-white hover:text-green-400 w-6 h-6 transition"></i>
+    </a>
+  </footer>
+
+  <script>
+    lucide.createIcons();
+
+    const dateSelect = document.getElementById('dateSelect');
+    const historyContainer = document.getElementById('historyContainer');
+
+    function renderExpenses(date) {
+      const stored = JSON.parse(localStorage.getItem('calendarExpenses')) || {};
+      const entries = stored[date] || [];
+
+      if (entries.length === 0) {
+        historyContainer.innerHTML = `<p class="text-center text-gray-400">No expenses found for this date.</p>`;
+        return;
+      }
+
+      historyContainer.innerHTML = `
+        <h3 class="text-xl text-green-300 text-center">Expenses for ${date}</h3>
+        <ul class="space-y-4">
+          ${entries.map((entry, index) => `
+            <li class="bg-gray-800 p-4 rounded flex justify-between items-center">
+              <div>
+                <p class="text-lg">💸 <strong>${entry.name}</strong> — ₹${entry.amount}</p>
+                <p class="text-sm text-gray-400">Type: ${entry.type}</p>
+              </div>
+              <button onclick="deleteExpense('${date}', ${index})" class="bg-red-600 px-3 py-1 rounded hover:bg-red-700">🗑️</button>
+            </li>
+          `).join('')}
+        </ul>
+      `;
+    }
+
+    function deleteExpense(date, index) {
+      const stored = JSON.parse(localStorage.getItem('calendarExpenses')) || {};
+      if (!stored[date]) return;
+
+      stored[date].splice(index, 1);
+      if (stored[date].length === 0) {
+        delete stored[date];
+      }
+
+      localStorage.setItem('calendarExpenses', JSON.stringify(stored));
+      renderExpenses(date);
+    }
+
+    dateSelect.addEventListener('change', () => {
+      const date = dateSelect.value;
+      if (date) renderExpenses(date);
+    });
+  </script>
+
+</body>
+</html>

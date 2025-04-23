@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Suggestions - Digit Control</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-black text-white min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="w-full bg-black px-6 py-4 flex items-center justify-between shadow-sm">
+    <a href="index.html" aria-label="Home">
+      <i data-lucide="home" class="text-white hover:text-green-400 w-6 h-6 transition"></i>
+    </a>
+    <a href="index.html" aria-label="Home">
+        <div class="text-green-400 text-xl font-bold">Digit Control</div>
+      </a>
+    <!-- <div class="text-green-400 text-xl font-bold">💡 Suggestions</div> -->
+  </header>
+
+  <!-- Main -->
+  <main class="flex-grow px-6 py-8">
+    <h2 class="text-3xl font-bold text-green-400 text-center mb-8">Smart Tips</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Tips will be injected here -->
+    </div>
+  </main>
+
+  <!-- Modal -->
+  <div id="tipModal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+    <div class="bg-gray-900 text-white rounded-xl shadow-xl p-6 max-w-md w-full relative">
+      <button id="closeModal" class="absolute top-2 right-4 text-gray-400 hover:text-white text-xl">✖</button>
+      <h3 id="modalTitle" class="text-xl font-bold text-green-400 mb-2"></h3>
+      <p id="modalContent" class="text-gray-200 text-sm"></p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="w-full bg-black p-4 flex justify-around border-t border-gray-800">
+    <a href="check-expense.html" aria-label="Check Data">
+        <i data-lucide="search" class="text-white hover:text-green-400 w-6 h-6 transition"></i>
+    </a>
+    <a href="analysis.html" aria-label="Analysis">
+      <i data-lucide="bar-chart-3" class="text-white hover:text-green-400 w-6 h-6 transition"></i>
+    </a>
+    <a href="debt.html" aria-label="Debt">
+      <i data-lucide="credit-card" class="text-white hover:text-green-400 w-6 h-6 transition"></i>
+    </a>
+    <a href="suggestions.html" aria-label="Suggestions">
+        <i data-lucide="lightbulb" class="text-white hover:text-green-400 w-6 h-6 transition"></i>
+    </a>
+  </footer>
+
+  <!-- Script -->
+  <script>
+    lucide.createIcons();
+
+    const tips = [
+      {
+        title: "Track Your Expenses",
+        details: "Knowing where your money goes is the first step to controlling your finances. Use budgeting apps or simple spreadsheets to monitor your spending habits."
+      },
+      {
+        title: "Create a Budget",
+        details: "Allocate your income into categories like essentials, savings, and fun. Stick to your plan to avoid overspending."
+      },
+      {
+        title: "Build an Emergency Fund",
+        details: "Aim to save at least 3–6 months of living expenses. It helps in case of job loss or unexpected events without going into debt."
+      },
+      {
+        title: "Automate Savings",
+        details: "Set up auto-debits to savings or investment accounts so you're saving before you even spend."
+      },
+      {
+        title: "Avoid Unnecessary Debt",
+        details: "Use credit wisely. Avoid high-interest debts and try paying off your credit card in full each month."
+      },
+      {
+        title: "Invest Early",
+        details: "The earlier you start investing, the more compound interest works in your favor. Even small amounts matter if started early."
+      },
+      {
+        title: "Cut Subscriptions You Don’t Use",
+        details: "Reassess recurring expenses regularly. Cancel subscriptions that don’t add value to your life."
+      },
+      {
+        title: "Use the 50/30/20 Rule",
+        details: "50% of your income for needs, 30% for wants, and 20% for savings or debt repayment. A simple guide to balance your budget."
+      },
+      {
+        title: "Review Your Finances Monthly",
+        details: "Take time to assess how you did each month. Adjust your habits based on goals or new changes in income/expenses."
+      },
+      {
+        title: "Set Clear Financial Goals",
+        details: "Having a goal like 'save ₹1 lakh for travel' gives purpose to your saving and motivates better money decisions."
+      },
+      {
+        title: "Increase Income Streams",
+        details: "Explore side hustles, freelancing, or passive income sources like dividends or rental income. Diversifying income can reduce reliance on a single paycheck."
+      },
+      {
+        title: "Regularly Revisit Your Financial Goals",
+        details: "Your needs and priorities change over time. Review and adjust your financial goals quarterly or annually to stay aligned with your current life stage."
+      },
+    ];
+
+    const grid = document.querySelector("main > div.grid");
+    tips.forEach((tip, index) => {
+      const card = document.createElement("div");
+      card.className = "bg-gray-800 rounded-2xl p-4 cursor-pointer hover:bg-gray-700 transition";
+      card.innerHTML = `<h4 class="text-lg font-semibold text-green-300">${tip.title}</h4>`;
+      card.addEventListener("click", () => {
+        document.getElementById("modalTitle").innerText = tip.title;
+        document.getElementById("modalContent").innerText = tip.details;
+        document.getElementById("tipModal").classList.remove("hidden");
+      });
+      grid.appendChild(card);
+    });
+
+    document.getElementById("closeModal").addEventListener("click", () => {
+      document.getElementById("tipModal").classList.add("hidden");
+    });
+
+    document.getElementById("tipModal").addEventListener("click", (e) => {
+      if (e.target.id === "tipModal") {
+        document.getElementById("tipModal").classList.add("hidden");
+      }
+    });
+  </script>
+</body>
+</html>

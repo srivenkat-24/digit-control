@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Digit Control</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-black text-white min-h-screen flex flex-col">
+
+  <header class="w-full bg-black px-6 py-4 flex items-center justify-between shadow-sm">
+    <a href="index.html" aria-label="Home">
+      <i data-lucide="home" class="text-white hover:text-green-400 w-6 h-6 transition"></i>
+    </a>
+    <a href="index.html" aria-label="Home">
+      <div class="text-green-400 text-xl font-bold">Digit Control</div>
+    </a>
+    <!-- <div class="text-green-400 text-xl font-bold">Digit Control</div> -->
+  </header>
+
+  <main class="flex-grow flex flex-col items-center justify-center px-4 py-8">
+    <div class="max-w-xl w-full text-center space-y-8">
+      <h2 class="text-3xl font-bold text-green-400 leading-relaxed">
+        You are only <span class="text-yellow-400 italic tracking-wide">nᴜᴍʙᴇʀꜱ</span> away from good financial decisions.
+      </h2>
+
+      <a href="save-data.html">
+        <button id="startButton" class="bg-green-600 hover:bg-green-700 transition text-white py-3 px-6 rounded-full text-lg shadow-lg">
+          🚀 Let's Get Started
+        </button>
+      </a>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 items-stretch">
+        <a href="check-expense.html">
+          <div class="bg-gray-900 p-4 rounded-2xl shadow h-full flex flex-col">
+            <h2 class="text-xl font-semibold text-green-400"> To Spend or Save 🔍</h2>
+            <p class="text-gray-300 mt-2 text-sm">
+              Quickly see what percent of your salary and goals an expense takes, and make informed decisions.
+            </p>
+          </div>
+        </a>
+
+        <a href="analysis.html">
+          <div class="bg-gray-900 p-4 rounded-2xl shadow h-full flex flex-col">
+            <h2 class="text-xl font-semibold text-green-400">Analysis 📊</h2>
+            <p class="text-gray-300 mt-2 text-sm">Visualize and understand your spending habits.</p>
+          </div>
+        </a>
+
+        <a href="debt.html">
+          <div class="bg-gray-900 p-4 rounded-2xl shadow h-full flex flex-col">
+            <h2 class="text-xl font-semibold text-green-400">Debt Management 💳 </h2>
+            <p class="text-gray-300 mt-2 text-sm">Track debts and create a plan to pay them off.</p>
+          </div>
+        </a>
+
+        <a href="suggestions.html">
+          <div class="bg-gray-900 p-4 rounded-2xl shadow h-full flex flex-col">
+            <h2 class="text-xl font-semibold text-green-400">Suggestions 💡</h2>
+            <p class="text-gray-300 mt-2 text-sm">Get tips on saving and investing wisely.</p>
+          </div>
+        </a>        
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="w-full bg-black p-4 flex justify-around border-t border-gray-800">
+    <a href="check-expense.html" aria-label="Check Data">
+      <i data-lucide="search" class="text-white hover:text-green-400 w-6 h-6 transition"></i>
+    </a>
+    <a href="analysis.html" aria-label="Analysis">
+      <i data-lucide="bar-chart-3" class="text-white hover:text-green-400 w-6 h-6 transition"></i>
+    </a>
+    <a href="debt.html" aria-label="Debt">
+      <i data-lucide="credit-card" class="text-white hover:text-green-400 w-6 h-6 transition"></i>
+    </a>
+    <a href="suggestions.html" aria-label="Suggestions">
+      <i data-lucide="lightbulb" class="text-white hover:text-green-400 w-6 h-6 transition"></i>
+    </a>
+  </footer>
+
+  <script>
+    lucide.createIcons();
+
+    // Check if user has already saved data
+    const isDataSaved = localStorage.getItem("dataSaved");
+    const startButton = document.getElementById("startButton");
+    if (startButton && isDataSaved === "true") {
+      startButton.textContent = "Make Changes to Saved Data ✏️";
+    }
+  </script>
+
+</body>
+</html>
+

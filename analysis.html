@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Spend Analysis - Digit Control</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-black text-white min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="w-full bg-black px-6 py-4 flex items-center justify-between shadow-sm">
+    <a href="index.html" aria-label="Home">
+      <i data-lucide="home" class="text-white hover:text-green-400 w-6 h-6 transition"></i>
+    </a>
+    <a href="index.html" aria-label="Home">
+      <div class="text-green-400 text-xl font-bold">Digit Control</div>
+    </a>
+    <!-- <div class="text-green-400 text-xl font-bold">💰 Spend Wise</div> -->
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-grow flex flex-col items-center justify-start px-4 py-8 pt-10">
+    <div class="max-w-2xl w-full space-y-6">
+      <h2 class="text-3xl font-bold text-green-400 text-center">Spend Analysis 📊 </h2>
+
+      <!-- Calendar Picker -->
+      <div>
+        <label for="analysisDate" class="block mb-2 text-lg">Select a date:</label>
+        <input type="date" id="analysisDate" class="w-full p-3 rounded-lg bg-gray-800 text-white">
+      </div>
+
+      <!-- Input Fields -->
+      <div>
+        <label class="block mb-2 text-lg">Expense Name</label>
+        <input type="text" id="expenseName" class="w-full p-3 rounded-lg bg-gray-800 text-white mb-4" placeholder="e.g. groceries">
+        
+        <label class="block mb-2 text-lg">Amount (₹)</label>
+        <input type="number" id="expenseAmount" class="w-full p-3 rounded-lg bg-gray-800 text-white mb-4" placeholder="e.g. 2000">
+        
+        <label class="block mb-2 text-lg">Expense Type</label>
+        <select id="expenseType" class="w-full p-3 rounded-lg bg-gray-800 text-white">
+          <option value="fixed">Fixed</option>
+          <option value="controllables">Controllables</option>
+        </select>
+      </div>
+
+      <button id="addExpense" class="w-full bg-green-600 text-white py-3 px-6 rounded-full hover:bg-green-700 transition">Add Expense ➕</button>
+      <button id="seeHistory" class="w-full border border-green-500 text-green-400 py-3 px-6 rounded-full hover:bg-green-800 transition">See History 📅</button>
+      <a href="report.html" class="w-full bg-green-500 text-black py-3 px-6 rounded-full font-semibold text-center hover:bg-green-600 transition block mt-2">
+        Get Report 🎯 
+      </a>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="w-full bg-black p-4 flex justify-around border-t border-gray-800">
+    <a href="check-expense.html" aria-label="Check Data">
+      <i data-lucide="search" class="text-white hover:text-green-400 w-6 h-6 transition"></i>
+    </a>
+    <a href="analysis.html" aria-label="Analysis">
+      <i data-lucide="bar-chart-3" class="text-white hover:text-green-400 w-6 h-6 transition"></i>
+    </a>
+    <a href="debt.html" aria-label="Debt">
+      <i data-lucide="credit-card" class="text-white hover:text-green-400 w-6 h-6 transition"></i>
+    </a>
+    <a href="suggestions.html" aria-label="Suggestions">
+      <i data-lucide="lightbulb" class="text-white hover:text-green-400 w-6 h-6 transition"></i>
+    </a>
+  </footer>
+
+  <script>
+    lucide.createIcons();
+
+    document.getElementById('addExpense').addEventListener('click', () => {
+      const date = document.getElementById('analysisDate').value;
+      const name = document.getElementById('expenseName').value.trim().toLowerCase();
+      const amount = parseFloat(document.getElementById('expenseAmount').value);
+      const type = document.getElementById('expenseType').value;
+
+      if (!date || !name || isNaN(amount) || !type) {
+        alert('Please fill in all fields.');
+        return;
+      }
+
+      const newEntry = { name, amount, type };
+      const stored = JSON.parse(localStorage.getItem('calendarExpenses')) || {};
+
+      if (!stored[date]) {
+        stored[date] = [];
+      }
+
+      stored[date].push(newEntry);
+      localStorage.setItem('calendarExpenses', JSON.stringify(stored));
+
+      // Visual feedback
+      const emojis = ['🎉', '✅', '📌', '💰', '🚀', '🙌', '✨'];
+      const feedback = document.createElement('div');
+      feedback.textContent = `${emojis[Math.floor(Math.random() * emojis.length)]} "${name}" added!`;
+      feedback.className = "text-green-400 text-center mt-4 text-lg animate-pulse";
+      document.querySelector('main').appendChild(feedback);
+
+      setTimeout(() => feedback.remove(), 3000);
+
+      // Clear inputs
+      document.getElementById('expenseName').value = '';
+      document.getElementById('expenseAmount').value = '';
+      document.getElementById('expenseType').value = 'fixed';
+    });
+
+    document.getElementById('seeHistory').addEventListener('click', () => {
+      window.location.href = 'history.html';
+    });
+  </script>
+
+</body>
+</html>
+

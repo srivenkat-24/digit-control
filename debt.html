@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Debt Manager - Digit Control</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-black text-white min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="w-full bg-black px-6 py-4 flex items-center justify-between shadow-sm">
+    <a href="index.html" aria-label="Home">
+      <i data-lucide="home" class="text-white hover:text-green-400 w-6 h-6 transition"></i>
+    </a>
+    <a href="index.html" aria-label="Home">
+        <div class="text-green-400 text-xl font-bold">Digit Control</div>
+    </a>
+    <!-- <div class="text-green-400 text-xl font-bold">💳 Debt Manager</div> -->
+  </header>
+
+  <!-- Main -->
+  <main class="flex-grow p-6 max-w-4xl mx-auto">
+    <h2 class="text-2xl font-bold text-center text-green-400 mb-6">Manage Your Debts</h2>
+    <div class="flex justify-center gap-6 mb-6">
+      <button id="selectOwe" class="bg-red-600 hover:bg-red-700 px-6 py-2 rounded-full font-semibold">Debt You Owe</button>
+      <button id="selectLent" class="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-full font-semibold">Debt You Lent</button>
+    </div>
+
+    <div id="debtSection"></div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="w-full bg-black p-4 flex justify-around border-t border-gray-800">
+    <a href="check-expense.html" aria-label="Check Data">
+        <i data-lucide="search" class="text-white hover:text-green-400 w-6 h-6 transition"></i>
+    </a>
+    <a href="analysis.html" aria-label="Analysis">
+      <i data-lucide="bar-chart-3" class="text-white hover:text-green-400 w-6 h-6 transition"></i>
+    </a>
+    <a href="debt.html" aria-label="Debt">
+        <i data-lucide="credit-card" class="text-white hover:text-green-400 w-6 h-6 transition"></i>
+    </a>
+    <a href="suggestions.html" aria-label="Suggestions">
+      <i data-lucide="lightbulb" class="text-white hover:text-green-400 w-6 h-6 transition"></i>
+    </a>
+  </footer>
+
+  <!-- Modal -->
+  <div id="debtModal" class="fixed inset-0 bg-black bg-opacity-80 hidden flex items-center justify-center z-50">
+    <div class="bg-gray-900 p-6 rounded-lg max-w-md w-full">
+      <h3 class="text-xl font-bold mb-4" id="modalTitle"></h3>
+      <p id="modalContent"></p>
+      <div class="text-right mt-4">
+        <button onclick="closeModal()" class="px-4 py-2 bg-green-600 rounded-full hover:bg-green-700">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    lucide.createIcons();
+
+    const debtSection = document.getElementById("debtSection");
+    const modal = document.getElementById("debtModal");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalContent = document.getElementById("modalContent");
+
+    const formatOptions = (prefix = '') => `
+      <div class="grid grid-cols-2 gap-4 items-end">
+        <div>
+          <input id="${prefix}timePeriod" type="number" placeholder="Time Period" class="p-2 bg-gray-800 rounded-lg w-full">
+        </div>
+        <div>
+          <select id="${prefix}timeUnit" class="p-2 bg-gray-800 rounded-lg w-full">
+            <option value="year">Years</option>
+            <option value="month">Months</option>
+          </select>
+        </div>
+
+        <div>
+          <input id="${prefix}interestRate" type="number" placeholder="Interest Rate" class="p-2 bg-gray-800 rounded-lg w-full">
+        </div>
+
+        <select id="${prefix}interestType" class="p-2 bg-gray-800 rounded-lg w-full">
+          <option value="simple">Simple Interest</option>
+          <option value="compound">Compound Interest</option>
+        </select>
+      </div>`;
+
+    const closeModal = () => modal.classList.add("hidden");
+
+    const showModal = (title, content) => {
+      modalTitle.textContent = title;
+      modalContent.innerHTML = content;
+      modal.classList.remove("hidden");
+    };
+
+    const deleteDebt = (type, index) => {
+      const debts = JSON.parse(localStorage.getItem(type) || "[]");
+      debts.splice(index, 1);
+      localStorage.setItem(type, JSON.stringify(debts));
+      type === 'debtsOwe' ? renderOwe() : renderLent();
+    };
+
+    const renderOwe = () => {
+      const savedOwes = JSON.parse(localStorage.getItem("debtsOwe") || "[]");
+      let html = `
+        <h3 class="text-xl font-bold text-red-400 mb-4">Debts You Owe</h3>
+        <div class="grid gap-4 mb-6">`;
+
+      savedOwes.forEach((debt, i) => {
+        html += `
+          <div class="p-4 bg-gray-800 rounded-lg relative cursor-pointer" onclick='showModal("${debt.name}", "Amount: ₹${debt.amount}<br>Type: ${debt.interestType}<br>Interest: ${debt.interestRate}%<br>Time: ${debt.time}<br>Monthly Saving: ₹${debt.requiredSaving}")'>
+            <p class="font-bold text-lg">${debt.name}</p>
+            <p>Save atleast ₹${debt.requiredSaving}/month to clear this debt on time.</p>
+            <button onclick="event.stopPropagation(); deleteDebt('debtsOwe', ${i})" class="absolute top-2 right-2 text-red-400 hover:text-red-600">🗑</button>
+          </div>`;
+      });
+
+      html += `</div>
+        <button onclick="showOweForm()" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-full font-semibold">➕ Add New Debt</button>`;
+      debtSection.innerHTML = html;
+    };
+
+    const showOweForm = () => {
+      debtSection.innerHTML = `
+        <h3 class="text-xl font-bold text-red-400 mb-4">Add New Debt You Owe</h3>
+        <input id="debtName" type="text" placeholder="Debt Name (e.g. Friend's Name)" class="w-full p-3 mb-4 rounded-lg bg-gray-800">
+        <input id="debtAmount" type="number" placeholder="Debt Amount" class="w-full p-3 mb-4 rounded-lg bg-gray-800">
+        ${formatOptions()}
+        <button onclick="addOweDebt()" class="mt-4 bg-red-600 hover:bg-red-700 px-6 py-2 rounded-full">Add Debt</button>`;
+    };
+
+    const addOweDebt = () => {
+      const name = document.getElementById("debtName").value;
+      const amount = parseFloat(document.getElementById("debtAmount").value);
+      const interestRate = parseFloat(document.getElementById("interestRate").value);
+      const time = parseFloat(document.getElementById("timePeriod").value);
+      const timeUnit = document.getElementById("timeUnit").value;
+      const interestType = document.getElementById("interestType").value;
+
+      const months = timeUnit === "year" ? time * 12 : time;
+      const rate = interestRate / 12;
+
+      let totalPayable;
+      if (interestType === "simple") {
+        totalPayable = amount + (amount * interestRate * (months / 12) / 100);
+      } else {
+        totalPayable = amount * Math.pow((1 + (rate / 100)), months);
+      }
+
+      const requiredSaving = Math.ceil(totalPayable / months);
+      const newDebt = { name, amount, interestRate, time, interestType, requiredSaving };
+
+      const debts = JSON.parse(localStorage.getItem("debtsOwe") || "[]");
+      debts.push(newDebt);
+      localStorage.setItem("debtsOwe", JSON.stringify(debts));
+      renderOwe();
+    };
+
+    const renderLent = () => {
+      const savedLents = JSON.parse(localStorage.getItem("debtsLent") || "[]");
+      let html = `
+        <h3 class="text-xl font-bold text-blue-400 mb-4">Debts You Lent</h3>
+        <div class="grid gap-4 mb-6">`;
+
+      savedLents.forEach((debt, i) => {
+        html += `
+          <div class="p-4 bg-gray-800 rounded-lg relative cursor-pointer" onclick='showModal("${debt.name}", "Amount: ₹${debt.amount}<br>Type: ${debt.interestType}<br>Interest: ${debt.interestRate}%<br>Time: ${debt.time}<br>Total Return: ₹${debt.totalReturn}")'>
+            <p class="font-bold text-lg">${debt.name}</p>
+            <p>Return Amount: ₹${debt.totalReturn}</p>
+            <button onclick="event.stopPropagation(); deleteDebt('debtsLent', ${i})" class="absolute top-2 right-2 text-red-400 hover:text-red-600">🗑</button>
+          </div>`;
+      });
+
+      html += `</div>
+        <button onclick="showLentForm()" class="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-full font-semibold">➕ Add New Lent</button>`;
+      debtSection.innerHTML = html;
+    };
+
+    const showLentForm = () => {
+      debtSection.innerHTML = `
+        <h3 class="text-xl font-bold text-blue-400 mb-4">Add New Debt You Lent</h3>
+        <input id="debtName" type="text" placeholder="Lent To (Name)" class="w-full p-3 mb-4 rounded-lg bg-gray-800">
+        <input id="debtAmount" type="number" placeholder="Lent Amount" class="w-full p-3 mb-4 rounded-lg bg-gray-800">
+        ${formatOptions()}
+        <button onclick="addLentDebt()" class="mt-4 bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-full">Add Debt</button>`;
+    };
+
+    const addLentDebt = () => {
+      const name = document.getElementById("debtName").value;
+      const amount = parseFloat(document.getElementById("debtAmount").value);
+      const interestRate = parseFloat(document.getElementById("interestRate").value);
+      const time = parseFloat(document.getElementById("timePeriod").value);
+      const timeUnit = document.getElementById("timeUnit").value;
+      const interestType = document.getElementById("interestType").value;
+
+      const months = timeUnit === "year" ? time * 12 : time;
+      const rate = interestRate / 12;
+
+      let totalReturn;
+      if (interestType === "simple") {
+        totalReturn = amount + (amount * interestRate * (months / 12) / 100);
+      } else {
+        totalReturn = amount * Math.pow((1 + (rate / 100)), months);
+      }
+
+      const newDebt = { name, amount, interestRate, time, interestType, totalReturn: Math.round(totalReturn) };
+      const debts = JSON.parse(localStorage.getItem("debtsLent") || "[]");
+      debts.push(newDebt);
+      localStorage.setItem("debtsLent", JSON.stringify(debts));
+      renderLent();
+    };
+
+    document.getElementById("selectOwe").addEventListener("click", renderOwe);
+    document.getElementById("selectLent").addEventListener("click", renderLent);
+  </script>
+</body>
+</html>

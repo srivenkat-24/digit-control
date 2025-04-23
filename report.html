@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spending Report - Spend Wise</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-black text-white min-h-screen flex flex-col">
+
+  <header class="w-full bg-black px-6 py-4 flex items-center justify-between shadow-sm">
+    <a href="index.html" aria-label="Home">
+      <i data-lucide="home" class="text-white hover:text-green-400 w-6 h-6 transition"></i>
+    </a>
+    <a href="index.html" aria-label="Home">
+      <div class="text-green-400 text-xl font-bold">Digit Control</div>
+    </a>
+  </header>
+
+  <!-- Main Content Wrapper -->
+  <main class="flex-grow flex flex-col items-center justify-start px-4 py-8 pt-10">
+    <div class="max-w-2xl w-full space-y-8">
+
+      <!-- Timeframe Selection -->
+      <section class="space-y-4">
+        <h2 class="text-lg font-semibold">Select Analysis Type:</h2>
+        <select id="analysisType" class="w-full p-3 rounded-full bg-gray-800 text-white">
+          <option value="one">One Day</option>
+          <option value="three">Three Days</option>
+          <option value="week">Weekly</option>
+          <option value="month">Monthly</option>
+        </select>
+
+        <div id="dateSelectors" class="space-y-2"></div>
+        <button id="generateReport" class="bg-green-600 w-full p-3 rounded-full font-bold hover:bg-green-700">Generate Report</button>
+      </section>
+
+      <!-- Results Section -->
+      <section id="results" class="hidden">
+        <div class="text-center mb-6">
+          <h3 class="text-xl font-bold">Total Spending: ₹<span id="totalSpending">0</span></h3>
+          <p class="text-gray-300">This is <span id="salaryPercentage">0%</span> of your salary</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="bg-gray-900 p-4 rounded-xl shadow">
+            <h4 class="text-lg font-semibold mb-2">Fixed Expenses</h4>
+            <canvas id="fixedChart"></canvas>
+            <!-- <p class="text-sm text-gray-400 mt-2">% of salary: <span id="fixedSalaryPercent">0%</span></p> -->
+            <p class="text-sm text-gray-400 mt-2">This category took up <span id="fixedSalaryPercent">0%</span> of your salary.</p>
+          </div>
+
+          <div class="bg-gray-900 p-4 rounded-xl shadow">
+            <h4 class="text-lg font-semibold mb-2">Controllables Expenses</h4>
+            <canvas id="controllablesChart"></canvas>
+            <p class="text-sm text-gray-400 mt-2">This category took up <span id="controllablesSalaryPercent">0%</span> of your salary.</p>
+          </div>
+        </div>
+
+        <!-- Spending Table -->
+        <div class="bg-gray-900 p-6 rounded-xl shadow mt-8">
+          <h4 class="text-lg font-semibold mb-4">Spending Breakdown</h4>
+          <table class="w-full text-sm text-gray-400">
+            <thead>
+              <tr>
+                <th class="text-left py-2">Expense Category</th>
+                <th class="text-left py-2">Amount (₹)</th>
+                <th class="text-left py-2">% of Salary</th>
+              </tr>
+            </thead>
+            <tbody id="spendingTableBody">
+              <!-- Dynamically populated table rows -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="w-full bg-black p-4 flex justify-around border-t border-gray-800">
+    <a href="check-expense.html" aria-label="Check Data">
+      <i data-lucide="search" class="text-white hover:text-green-400 w-6 h-6 transition"></i>
+    </a>
+    <a href="analysis.html" aria-label="Analysis">
+      <i data-lucide="bar-chart-3" class="text-white hover:text-green-400 w-6 h-6 transition"></i>
+    </a>
+    <a href="debt.html" aria-label="Debt">
+      <i data-lucide="credit-card" class="text-white hover:text-green-400 w-6 h-6 transition"></i>
+    </a>
+    <a href="suggestions.html" aria-label="Suggestions">
+      <i data-lucide="lightbulb" class="text-white hover:text-green-400 w-6 h-6 transition"></i>
+    </a>
+  </footer>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    lucide.createIcons();
+
+    const dateSelectors = document.getElementById('dateSelectors');
+    const analysisType = document.getElementById('analysisType');
+    const resultsSection = document.getElementById('results');
+    const spendingTableBody = document.getElementById('spendingTableBody');
+
+    const updateDatePickers = () => {
+      const type = analysisType.value;
+      let html = '';
+
+      if (type === 'one') {
+        html = '<input type="date" id="singleDate" class="w-full p-3 rounded-full bg-gray-800 text-white">';
+      } else if (type === 'three' || type === 'week') {
+        html = `  
+          <label class="block">Start Date</label>
+          <input type="date" id="startDate" class="w-full p-3 rounded-full bg-gray-800 text-white">
+          <label class="block mt-2">End Date</label>
+          <input type="date" id="endDate" class="w-full p-3 rounded-full bg-gray-800 text-white">
+        `;
+      } else if (type === 'month') {
+        html = '<input type="month" id="monthPicker" class="w-full p-3 rounded-full bg-gray-800 text-white">';
+      }
+
+      dateSelectors.innerHTML = html;
+    };
+
+    analysisType.addEventListener('change', updateDatePickers);
+    window.addEventListener('DOMContentLoaded', updateDatePickers);
+
+    document.getElementById('generateReport').addEventListener('click', () => {
+      const type = analysisType.value;
+      const stored = JSON.parse(localStorage.getItem('calendarExpenses')) || {};
+      const salary = parseFloat(localStorage.getItem('userSalary') || '50000'); // Default if not set
+
+      let selectedDates = [];
+
+      if (type === 'one') {
+        const date = document.getElementById('singleDate').value;
+        if (date) selectedDates.push(date);
+      } else if (type === 'three' || type === 'week') {
+        const start = new Date(document.getElementById('startDate').value);
+        const end = new Date(document.getElementById('endDate').value);
+        if (!isNaN(start) && !isNaN(end)) {
+          for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+            selectedDates.push(d.toISOString().split('T')[0]);
+          }
+        }
+      } else if (type === 'month') {
+        const monthVal = document.getElementById('monthPicker').value;
+        if (monthVal) {
+          const [year, month] = monthVal.split('-');
+          const daysInMonth = new Date(year, month, 0).getDate();
+          for (let d = 1; d <= daysInMonth; d++) {
+            const day = d.toString().padStart(2, '0');
+            selectedDates.push(`${year}-${month}-${day}`);
+          }
+        }
+      }
+
+      let fixed = {}, controllables = {}, total = 0, fixedTotal = 0, controllablesTotal = 0;
+
+      selectedDates.forEach(date => {
+        const entries = stored[date] || [];
+        entries.forEach(entry => {
+          total += entry.amount;
+          if (entry.type === 'fixed') {
+            fixed[entry.name] = (fixed[entry.name] || 0) + entry.amount;
+            fixedTotal += entry.amount;
+          } else {
+            controllables[entry.name] = (controllables[entry.name] || 0) + entry.amount;
+            controllablesTotal += entry.amount;
+          }
+        });
+      });
+
+      // Update totals
+      document.getElementById('totalSpending').textContent = total.toFixed(2);
+      document.getElementById('salaryPercentage').textContent = ((total / salary) * 100).toFixed(1) + '%';
+      document.getElementById('fixedSalaryPercent').textContent = ((fixedTotal / salary) * 100).toFixed(1) + '%';
+      document.getElementById('controllablesSalaryPercent').textContent = ((controllablesTotal / salary) * 100).toFixed(1) + '%';
+
+      // Populate pie charts
+      const fixedChart = new Chart(document.getElementById('fixedChart'), {
+        type: 'pie',
+        data: {
+          labels: Object.keys(fixed),
+          datasets: [{
+            label: 'Fixed Expenses',
+            data: Object.values(fixed),
+            backgroundColor: ['#FF5733', '#FF8D1A', '#F7F7F7', '#C70039', '#900C3F', '#581845'],
+          }],
+        },
+      });
+
+      const controllablesChart = new Chart(document.getElementById('controllablesChart'), {
+        type: 'pie',
+        data: {
+          labels: Object.keys(controllables),
+          datasets: [{
+            label: 'Controllables Expenses',
+            data: Object.values(controllables),
+            backgroundColor: ['#4CAF50', '#FFC107', '#00BCD4', '#2196F3', '#673AB7', '#E91E63'],
+          }],
+        },
+      });
+
+      // Fill in the spending table
+      const appendToTable = (category, data) => {
+        return Object.keys(data).map(name => `
+          <tr>
+            <td class="py-2">${name}</td>
+            <td class="py-2">₹${data[name].toFixed(2)}</td>
+            <td class="py-2">${((data[name] / salary) * 100).toFixed(1)}%</td>
+          </tr>
+        `).join('');
+      };
+
+      spendingTableBody.innerHTML = appendToTable('Fixed Expenses', fixed) + appendToTable('Controllables Expenses', controllables);
+
+      // Show results
+      resultsSection.classList.remove('hidden');
+    });
+  </script>
+</body>
+</html>

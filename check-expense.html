@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Check Expense - Digit Control</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-black text-white min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="w-full bg-black px-6 py-4 flex items-center justify-between shadow-sm">
+    <a href="index.html" aria-label="Home">
+      <i data-lucide="home" class="text-white hover:text-green-400 w-6 h-6 transition"></i>
+    </a>
+    <a href="index.html" aria-label="Home">
+      <div class="text-green-400 text-xl font-bold">Digit Control</div>
+    </a>
+    <!-- <div class="text-green-400 text-xl font-bold">💰 Spend Wise</div> -->
+  </header>
+
+  <!-- Main -->
+  <main class="flex-grow flex flex-col items-center justify-center px-4 py-8">
+    <div class="max-w-3xl w-full space-y-6 text-center">
+      <h2 class="text-3xl font-bold text-green-400">Check Your Expense</h2>
+
+      <input id="expenseAmount" type="number" placeholder="Expense Amount (₹)" class="w-full p-3 rounded-lg bg-gray-800 text-white">
+
+      <button id="calculateBtn" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-6 rounded-full transition">
+        Calculate Impact 📊 
+      </button>
+
+      <!-- Impact Result Block -->
+      <div id="resultPanel" class="hidden bg-gray-900 p-6 rounded-2xl mt-6 space-y-4 text-left">
+        <h3 id="panelTitle" class="text-2xl font-bold"></h3>
+        <div id="detailContent" class="space-y-4"></div>
+      </div>
+
+      <!-- Toggle Buttons -->
+      <div id="toggleButtons" class="hidden flex justify-center gap-4 mt-10">
+        <button id="showSpend" class="bg-gray-800 hover:bg-red-600 text-white px-4 py-2 rounded-full transition"> If You Spend 💸</button>
+        <button id="showSave" class="bg-gray-800 hover:bg-green-600 text-white px-4 py-2 rounded-full transition"> If You Save 💾</button>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Info Modal -->
+  <div id="infoModal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+    <div class="bg-gray-900 text-white rounded-xl shadow-xl p-6 max-w-md w-full relative">
+      <button id="closeModal" class="absolute top-2 right-4 text-gray-400 hover:text-white text-xl">✖</button>
+      <div id="modalContent" class="text-lg"></div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="w-full bg-black p-4 flex justify-around border-t border-gray-800">
+    <a href="check-expense.html" aria-label="Check Data"><i data-lucide="search" class="text-white hover:text-green-400 w-6 h-6 transition"></i></a>
+    <a href="analysis.html" aria-label="Analysis"><i data-lucide="bar-chart-3" class="text-white hover:text-green-400 w-6 h-6 transition"></i></a>
+    <a href="debt.html" aria-label="Debt"><i data-lucide="credit-card" class="text-white hover:text-green-400 w-6 h-6 transition"></i></a>
+    <a href="suggestions.html" aria-label="Suggestions"><i data-lucide="lightbulb" class="text-white hover:text-green-400 w-6 h-6 transition"></i></a>
+  </footer>
+
+  <!-- Script -->
+  <script>
+    lucide.createIcons();
+
+    const expenseInput = document.getElementById("expenseAmount");
+    const calculateBtn = document.getElementById("calculateBtn");
+    const resultPanel = document.getElementById("resultPanel");
+    const detailContent = document.getElementById("detailContent");
+    const panelTitle = document.getElementById("panelTitle");
+    const toggleButtons = document.getElementById("toggleButtons");
+
+    let spendData = [];
+    let saveData = [];
+
+    const buildBar = (percent) => `
+      <div class="w-full bg-gray-700 rounded-full overflow-hidden">
+        <div class="bg-green-500 h-6 text-sm text-black font-bold text-center" style="width: ${Math.min(percent, 100)}%">${percent.toFixed(2)}%</div>
+      </div>`;
+
+    const addBlock = (container, title, percent, color) => {
+      container.innerHTML += `
+        <div>
+          <div class="flex items-center justify-between">
+            <h4 class="font-semibold text-lg">${title}</h4>
+          </div>
+          <p>This expense is ${percent.toFixed(2)}% of your ${title.toLowerCase()}.</p>
+          ${buildBar(percent)}
+        </div>`;
+    };
+
+    calculateBtn.addEventListener("click", () => {
+      const amount = parseFloat(expenseInput.value);
+      const salary = parseFloat(localStorage.getItem("salary"));
+      const shortGoal = parseFloat(localStorage.getItem("shortTermAmount"));
+      const longGoal = parseFloat(localStorage.getItem("longTermAmount"));
+
+      if (isNaN(amount) || amount <= 0) {
+        alert("Enter a valid expense amount.");
+        return;
+      }
+
+      if (!salary || !shortGoal || !longGoal) {
+        alert("Please save your salary and goals first.");
+        return;
+      }
+
+      const salaryPercent = (amount / salary) * 100;
+      const shortPercent = (amount / shortGoal) * 100;
+      const longPercent = (amount / longGoal) * 100;
+      
+      spendData = [
+        {
+          title: "Salary",
+          percent: salaryPercent,
+          info: `If you spend ₹${amount} daily, it adds up to ₹${amount * 30} by the end of the month — that's about ${((amount * 30) / salary) * 100}% of your salary.` +
+                ( ((amount * 30) / salary) * 100 > 100 ? ` It is ${(((amount * 30) / salary) * 100 - 100).toFixed(2)}% more than your monthly salary! Be careful.` : ""),
+          color: "red"
+        },
+        {
+          title: "Short-Term Goal",
+          percent: shortPercent,
+          info: shortPercent >= 100
+            ? "You really want to spend instead of completing this goal?"
+            : "You're delaying your short-term goal by using this amount.",
+          color: "red"
+        },
+        {
+          title: "Long-Term Goal",
+          percent: longPercent,
+          info: longPercent >= 100
+            ? "You really want to spend instead of completing this goal?"
+            : "You're pushing your long-term goal further away.",
+          color: "red"
+        }
+      ];
+
+      saveData = [
+        {
+          title: "Salary",
+          percent: salaryPercent,
+          info: `I am sure you will use this ₹${amount} for a better purpose in future.`,
+          color: "green"
+        },
+        {
+          title: "Short-Term Goal",
+          percent: shortPercent,
+          info: shortPercent >= 100
+            ? "You can complete your short-term goal! Congrats!"
+            : `Save this amount ${Math.round(shortGoal / amount)} more times to reach your short-term goal.`,
+          color: "green"
+        },
+        {
+          title: "Long-Term Goal",
+          percent: longPercent,
+          info: longPercent >= 100
+            ? "You can complete your long-term goal! Congrats!"
+            : `Save this amount ${Math.round(longGoal / amount)} more times to reach your long-term goal.`,
+          color: "green"
+        }
+      ];
+
+      toggleButtons.classList.remove("hidden");
+      resultPanel.classList.remove("hidden");
+      renderPanel("spend");  // By default show "If You Spend"
+    });
+
+    const renderPanel = (type) => {
+      const data = type === "spend" ? spendData : saveData;
+      panelTitle.innerHTML = `${type === "spend" ? "If You Spend 💸 " : "If You Save 💾"}`;
+      detailContent.innerHTML = "";
+      data.forEach(item => {
+        addBlock(detailContent, item.title, item.percent, item.color);
+      });
+    };
+
+    document.getElementById("showSpend").addEventListener("click", () => {
+      renderPanel("spend");
+      openModal("spend");
+    });
+    document.getElementById("showSave").addEventListener("click", () => {
+      renderPanel("save");
+      openModal("save");
+    });
+
+    // Modal logic
+    const modal = document.getElementById("infoModal");
+    const modalContent = document.getElementById("modalContent");
+    const closeModal = document.getElementById("closeModal");
+
+    const openModal = (type) => {
+      const data = type === "spend" ? spendData : saveData;
+      let content = "<h3 class='text-xl font-bold'>" + (type === "spend" ? "If You Spend 💸" : "If You Save 💾") + "</h3>";
+      data.forEach(item => {
+        content += `<p><strong>${item.title}</strong>: ${item.info}</p>`;
+      });
+      modalContent.innerHTML = content;
+      modal.classList.remove("hidden");
+    };
+
+    document.addEventListener("click", (e) => {
+      if (e.target.id === "closeModal" || e.target.id === "infoModal") {
+        modal.classList.add("hidden");
+      }
+    });
+  </script>
+</body>
+</html>

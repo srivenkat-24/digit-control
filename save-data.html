@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Save Data - Digit Control</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-black text-white min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="w-full bg-black px-6 py-4 flex items-center justify-between shadow-sm">
+    <a href="index.html" aria-label="Home">
+      <i data-lucide="home" class="text-white hover:text-green-400 w-6 h-6 transition"></i>
+    </a>
+    <a href="index.html" aria-label="Home">
+      <div class="text-green-400 text-xl font-bold">Digit Control</div>
+    </a>
+    <!-- <div class="text-green-400 text-xl font-bold">💰 Spend Wise</div> -->
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-grow flex flex-col items-center justify-center px-4 py-8">
+    <div class="max-w-xl w-full space-y-6">
+      <h2 class="text-3xl font-bold text-green-400">Save Your Financial Data</h2>
+
+      <!-- Salary Input -->
+      <div>
+        <h3 class="text-xl font-semibold text-green-400 mb-2">Enter Your Salary</h3>
+        <input id="salaryInput" type="number" placeholder="Enter Salary (₹)" class="w-full p-3 rounded-lg bg-gray-800 text-white mb-4">
+      </div>
+
+      <!-- Short-Term Goal -->
+      <div>
+        <h3 class="text-xl font-semibold text-green-400 mb-2">Short-Term Goal</h3>
+        <input id="shortTermGoalName" type="text" placeholder="Name" class="w-full p-3 rounded-lg bg-gray-800 text-white mb-2">
+        <input id="shortTermGoalAmount" type="number" placeholder="Amount (₹)" class="w-full p-3 rounded-lg bg-gray-800 text-white mb-4">
+      </div>
+
+      <!-- Long-Term Goal -->
+      <div>
+        <h3 class="text-xl font-semibold text-green-400 mb-2">Long-Term Goal</h3>
+        <input id="longTermGoalName" type="text" placeholder="Name" class="w-full p-3 rounded-lg bg-gray-800 text-white mb-2">
+        <input id="longTermGoalAmount" type="number" placeholder="Amount (₹)" class="w-full p-3 rounded-lg bg-gray-800 text-white mb-4">
+      </div>
+
+      <button id="saveData" class="w-full bg-green-600 text-white py-3 px-6 rounded-full hover:bg-green-700 transition">💾 Save & Proceed</button>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="w-full bg-black p-4 flex justify-around border-t border-gray-800">
+    <a href="check-expense.html" aria-label="Check Data">
+      <i data-lucide="search" class="text-white hover:text-green-400 w-6 h-6 transition"></i>
+    </a>
+    <a href="analysis.html" aria-label="Analysis">
+      <i data-lucide="bar-chart-3" class="text-white hover:text-green-400 w-6 h-6 transition"></i>
+    </a>
+    <a href="debt.html" aria-label="Debt">
+      <i data-lucide="credit-card" class="text-white hover:text-green-400 w-6 h-6 transition"></i>
+    </a>
+    <a href="suggestions.html" aria-label="Suggestions">
+      <i data-lucide="lightbulb" class="text-white hover:text-green-400 w-6 h-6 transition"></i>
+    </a>
+  </footer>
+
+  <!-- Load saved data into form -->
+  <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      const salary = localStorage.getItem('salary');
+      const shortTermGoal = localStorage.getItem('shortTermGoal');
+      const shortTermAmount = localStorage.getItem('shortTermAmount');
+      const longTermGoal = localStorage.getItem('longTermGoal');
+      const longTermAmount = localStorage.getItem('longTermAmount');
+
+      if (salary) document.getElementById('salaryInput').value = salary;
+      if (shortTermGoal) document.getElementById('shortTermGoalName').value = shortTermGoal;
+      if (shortTermAmount) document.getElementById('shortTermGoalAmount').value = shortTermAmount;
+      if (longTermGoal) document.getElementById('longTermGoalName').value = longTermGoal;
+      if (longTermAmount) document.getElementById('longTermGoalAmount').value = longTermAmount;
+    });
+
+    document.getElementById("saveData").addEventListener("click", () => {
+      let salary = parseFloat(document.getElementById('salaryInput').value);
+      let shortTermName = document.getElementById('shortTermGoalName').value;
+      let shortTermAmount = parseFloat(document.getElementById('shortTermGoalAmount').value);
+      let longTermName = document.getElementById('longTermGoalName').value;
+      let longTermAmount = parseFloat(document.getElementById('longTermGoalAmount').value);
+
+      if (isNaN(salary) || isNaN(shortTermAmount) || isNaN(longTermAmount) || !shortTermName || !longTermName) {
+        alert("Please fill in all fields correctly!");
+        return;
+      }
+
+      localStorage.setItem('salary', salary);
+      localStorage.setItem('shortTermGoal', shortTermName);
+      localStorage.setItem('shortTermAmount', shortTermAmount);
+      localStorage.setItem('longTermGoal', longTermName);
+      localStorage.setItem('longTermAmount', longTermAmount);
+      localStorage.setItem('dataSaved', 'true'); // Triggers change on index.html
+
+      alert("✅ Data saved successfully!");
+      window.location.href = "index.html";
+    });
+  </script>
+
+  <script>
+    lucide.createIcons();
+  </script>
+
+</body>
+</html>
