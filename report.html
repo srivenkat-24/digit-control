@@ -130,7 +130,15 @@
     document.getElementById('generateReport').addEventListener('click', () => {
       const type = analysisType.value;
       const stored = JSON.parse(localStorage.getItem('calendarExpenses')) || {};
-      const salary = parseFloat(localStorage.getItem('userSalary') || '50000'); // Default if not set
+      // const salary = parseFloat(localStorage.getItem('userSalary') || '50000'); // Default if not set
+      const salaryRaw = localStorage.getItem('salary');
+
+      if (!salaryRaw || isNaN(parseFloat(salaryRaw))) {
+        alert("Salary not found! Please go to the Save Data page and enter your salary.");
+        return;
+      }
+
+      const salary = parseFloat(salaryRaw);
 
       let selectedDates = [];
 
