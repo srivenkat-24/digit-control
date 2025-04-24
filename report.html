@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Spending Report - Spend Wise</title>
+  <title>Spending Report - Digit Control</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -223,7 +223,7 @@
         `).join('');
       };
 
-      spendingTableBody.innerHTML = appendToTable('Fixed Expenses', fixed) + appendToTable('Controllables Expenses', controllables);
+      spendingTableBody.innerHTML = appendToTable('Fixed Expenses', fixed) + appendToTable('Controllable Expenses', controllables);
 
       // Show results
       resultsSection.classList.remove('hidden');
